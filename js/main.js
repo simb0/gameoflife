@@ -3,6 +3,10 @@ const CELL = {
   ALIVE: 1
 };
 
+/**
+ * The AnimtationController controls the drawing on the canvas.
+ * The drawing function itself is passed from the Game class to the AnimtationController.
+ */
 class AnimationController {
   stop = false;
   frameCount = 0;
@@ -61,6 +65,9 @@ class AnimationController {
   }
 }
 
+/**
+ * The Charter takes care of drawing the chart.
+ */
 class Charter {
   chart;
   livingPoints = [];
@@ -121,45 +128,41 @@ class Game {
     this.cellSize = cellSize;
     this.animationController = new AnimationController(fps);
 
-    var _this = this;
-
     this.canv = document.createElement('canvas');
     this.canv.id = 'game';
     this.canv.width = width + this.cellSize+10;
     this.canv.height = height + this.cellSize+10;
-
     this.width = width;
     this.height = height;
 
-    document.getElementById("gamefield").appendChild(this.canv);
     this.gamestatus = document.getElementById("gamestatus");
+    document.getElementById("gamefield").appendChild(this.canv);
+    this.ctx = document.getElementById('game').getContext('2d');
+    this.ctx.fillStyle = "#c0d2e0";
+    this.ctx.fillRect(0, 0, this.canv.width, this.canv.height);
+
+    this.charter = new Charter();
+    this.initListeners();
+    this.reOffset();
+  }
+
+  initListeners() {
+    let _this = this;
     window.onscroll = function (e) {
       _this.reOffset();
     }
     window.onresize = function (e) {
       _this.reOffset();
     }
-
-    this.ctx = document.getElementById('game').getContext('2d');
-    this.ctx.fillStyle = "#c0d2e0";
-    this.ctx.fillRect(0, 0, this.canv.width, this.canv.height);
-
-    this.charter = new Charter();
-
     document.getElementById('game').addEventListener("pointermove", function (e) {
-      // tell the browser we're handling this event
       e.preventDefault();
       e.stopPropagation();
-
-      console.log("offset y",_this.offsetY);
-      // get the mouse position
       _this.selectedX = Math.floor((e.clientX - _this.offsetX) / _this.cellSize);
       _this.selectedY = Math.floor((e.clientY - _this.offsetY) / _this.cellSize);
 
     });
 
     document.getElementById('game').addEventListener("mousedown", function (e) {
-      // tell the browser we're handling this event
       _this.currentGen[_this.selectedX][_this.selectedY] = CELL.ALIVE;
     });
 
@@ -174,7 +177,6 @@ class Game {
       e.stopPropagation();
       _this.pause = false;
     });
-    this.reOffset();
   }
 
   reOffset() {
